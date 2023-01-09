@@ -1,6 +1,5 @@
 #ifndef BEACON_H
 #define BEACON_H
-
 #include <stdint.h>
 
 struct radiotap_header {
@@ -36,12 +35,6 @@ struct tag_SSID_parameter{
     uint8_t ssid[32];
 } __attribute__ ((__packed__));
 
-struct tag_supported_rates{
-    uint8_t number;
-    uint8_t len;
-    uint8_t rates;
-} __attribute__ ((__packed__));
-
 struct tag_DS_parameter{
     uint8_t number;
     uint8_t len;
@@ -50,11 +43,9 @@ struct tag_DS_parameter{
 
 int radiotap_length(struct radiotap_header *radiotap_header);
 int beacon_header_length(struct beacon_header *beacon_header);
-int fixed_parameters_length(struct fixed_parameters *fixed_parameters);
 int tag_parameter_number(struct tag_parameter *tag_parameter);
 int tag_parameter_length(struct tag_parameter *tag_parameter);
 int SSID_parameter(struct tag_SSID_parameter *tag_SSID_parameter);
-int supported_rates(struct tag_supported_rates *tag_supported_rates);
 int DS_parameter(struct tag_DS_parameter *tag_DS_parameter);
 
 #endif // BEACON_H

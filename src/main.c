@@ -101,7 +101,6 @@ void append(unsigned char * ESSID, unsigned char * BSSID){  //와이파이 목�
     memcpy(wifi_list[count-1].ESSID,ESSID,32);
 }
 
-
 int main(int argc, char* argv[]) {
     start = time(0);
     if (argc != 2) { // 인자가 2개가 아니면 사용법 출력
@@ -129,7 +128,7 @@ int main(int argc, char* argv[]) {
     while (1) { // 802.11 패킷 수신
         struct pcap_pkthdr* header;
         const u_char* packet;
-        unsigned int radiotap_len, frame_control, SSID_len, support_len, DS_len;
+        unsigned int radiotap_len, frame_control, SSID_len;
         unsigned char SSID_str[32];
         unsigned char BSSID_str[6];
         time_t seconds = time(0);
@@ -142,7 +141,6 @@ int main(int argc, char* argv[]) {
             printf("pcap_next_ex return %d(%s)\n", res, pcap_geterr(pcap));
             break;
         }
-        //printf("%u bytes captured\n", header->caplen);
         PWR = packet[18]-256;
 
         radiotap_len = radiotap_length((struct radiotap_header *)packet); // Get radiotap length
@@ -150,34 +148,46 @@ int main(int argc, char* argv[]) {
 
         frame_control = beacon_header_length((struct beacon_header *)packet);
         struct beacon_header * BSSID = (struct beacon_header *)packet;
+
         for(int i=0;i<6;i++) {
             BSSID_str[i] = BSSID->bssid[i];
         }
-        if (frame_control == 0x8000){   //beacon frame
+        if (frame_control == 0x8000){ //beacon frame
             packet += EHTERNET_LEN;
-            fixed_parameters_length((struct fixed_parameters *) packet);
             packet += FIXED_PARAM_LEN;
-            //switch(tag_parameter_number(packet))
-            SSID_len = dump_SSID_parameter((struct tag_SSID_parameter *) packet);
 
-            //SSID를 배열에 저장하는 부분
-            struct tag_SSID_parameter * SSID = (struct tag_SSID_parameter *) packet;
-            for(int i=0;i<SSID_len;i++) SSID_str[i] = SSID->ssid[i];
+            struct tag_SSID_parameter * SSID;
+            struct tag_DS_parameter * DS;
+            int tag_type, tag_len, flag = 0;
+            while(1){ //
+                tag_type = tag_parameter_number((struct tag_parameter *) packet);
+                tag_len = tag_parameter_length((struct tag_parameter *) packet);
+                switch(tag_type){ // SSID tag와 DS tag를 저장
+                    case 0: //tag_type -> SSID : 0
+                        SSID = (struct tag_SSID_parameter *) packet;
+                        SSID_len = SSID->len;
+                        break;
+                    case 3: //tag_type -> channel : 3
+                        DS = (struct tag_DS_parameter *) packet;
+                        flag = 1; // while 탈출을 위한 flag 변수 설정
+                        break; // 더 이상 구할게 없으니 break
+                }
+                if(flag == 1) break; // while 탈출
+                packet += (tag_len + FIELD_JUMP_LEN); // 다음 tag 시작 주소로 변경
+            }
+
+            for(int i=0;i<SSID_len;i++) SSID_str[i] = SSID->ssid[i]; // SSID를 배열로 저장
             SSID_str[SSID_len] = '\0';
-            if (SSID_str[0] == '\0') continue;
+            if (SSID_str[0] == '\0') continue; // ssid 이름이 비어있다면, 패킷을 다시 받는다.
 
-            packet += SSID_len + FIELD_JUMP_LEN;
-            support_len = dump_supported_rates((struct tag_supported_rates *) packet);
-            packet += support_len + FIELD_JUMP_LEN;
-            DS_len = dump_DS_parameter((struct tag_DS_parameter *) packet);
-            struct tag_DS_parameter * DS = (struct tag_DS_parameter *) packet;
-            channel = DS->channel;  //현 패킷의 와이파이 채널을 저장
-            if (search(BSSID_str)==0){  //0을 리턴하면 현재 와이파이 목록에 없는 BSSID 이므로, 추가해서 목록을 재출력
+            channel = DS->channel; // 현재 패킷의 와이파이 채널을 저장
+
+            if (search(BSSID_str)==0){ // 0을 리턴하면 현재 와이파이가 목록에 없으므로 추가
                 append(SSID_str, BSSID_str);
             }
-            system("clear");
+            system("clear"); // 와이파이 목록 재출력
             list();
         }
     }
-    pcap_close(pcap);
+    pcap_close(pcap); // pcap close
 }

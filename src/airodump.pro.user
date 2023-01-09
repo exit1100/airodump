@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.11.0, 2023-01-09T02:25:18. -->
+<!-- Written by QtCreator 4.11.0, 2023-01-10T00:59:06. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -285,8 +285,9 @@
     </valuelist>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/home/yejun/bob/network/airodump-ng/src/airodump.pro</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/home/yejun/bob/network/airodump-ng/src/airodump.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">airodump2</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/home/yejun/bob/network/report-airodump/src/airodump.pro</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/home/yejun/bob/network/report-airodump/src/airodump.pro</value>
     <value type="QString" key="RunConfiguration.Arguments">wlx88366cfba604</value>
     <value type="bool" key="RunConfiguration.Arguments.multi">false</value>
     <value type="QString" key="RunConfiguration.OverrideDebuggerStartup"></value>
